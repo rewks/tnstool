@@ -48,18 +48,18 @@ namespace TnsTool {
                 ns.Read(content, 0, content.Length);
 
                 if (header.PacketType == 2) { // ACCEPT connection packet
-                    TNS_ACCEPT_PACKET acceptPacket = new TNS_ACCEPT_PACKET(content);
-                    this.Version = Regex.Match(acceptPacket.AcceptData, "VSNNUM=\\d{9}").ToString()[7..];
+                    TNS_ACCEPT_PACKET acceptPacket = new TNS_ACCEPT_PACKET(content);                 
                     logger.LogDebug($"Connection accepted, server version: {acceptPacket.TNSVersion}");
                     logger.LogDebug($"Acceptance TNS string: {acceptPacket.AcceptData}");
+                    if (Regex.IsMatch(acceptPacket.AcceptData, "VSNNUM=\\d{9}")) this.Version = Regex.Match(acceptPacket.AcceptData, "VSNNUM=\\d{9}").ToString()[7..];
 
                     return ReadDataPackets(ns, logger); // Continue reading DATA packets until end of data marker [0x00, 0x40] is received
 
                 } else if (header.PacketType == 4) { // REFUSE connection packet, also used when command is 'ping'
-                    TNS_REFUSE_PACKET refusePacket = new TNS_REFUSE_PACKET(content);
-                    this.Version = Regex.Match(refusePacket.RefuseData, "VSNNUM=\\d{9}").ToString()[7..];
+                    TNS_REFUSE_PACKET refusePacket = new TNS_REFUSE_PACKET(content);                
                     logger.LogDebug($"Connected refused, refusal code (user): {refusePacket.ReasonUser}. Refusal code (system): {refusePacket.ReasonSystem}");
                     logger.LogDebug($"Refusal TNS string: {refusePacket.RefuseData}");
+                    if (Regex.IsMatch(refusePacket.RefuseData, "VSNNUM=\\d{9}")) this.Version = Regex.Match(refusePacket.RefuseData, "VSNNUM=\\d{9}").ToString()[7..];
 
                     PrintRefusal(refusePacket.RefuseData, logger);
                 }
