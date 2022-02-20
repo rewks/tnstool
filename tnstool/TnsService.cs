@@ -109,7 +109,7 @@ namespace TnsTool {
                         logger.LogDebug("Data not complete yet, calling ReadDataPackets recursively");
                         data = data.Concat(ReadDataPackets(ns, logger)).ToArray();
                     }
-                    logger.LogDebug($"Data: {BitConverter.ToString(data)}");
+                    //logger.LogDebug($"Data: {BitConverter.ToString(data)}");
                     return data;
                 } catch (Exception e) {
                     logger.LogError($"Exception occured while reading data packets: {e}");
