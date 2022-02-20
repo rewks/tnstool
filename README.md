@@ -11,7 +11,6 @@ There are two modes of operation, the default is to read a single target from th
 -c, --command    Required. Command to run (e.g. ping, version, status, services)
 
 -a, --args       Arguments (for commands which require them)
--v, --version    (Default: 10g) Version of Oracle db [8i, 9i, 10g, 11g, 12c, 18c, 19c, 21c]
 -s, --service    (Default: LISTENER) TNS service name
 -o, --outfile    Write output to file (JSON)
 -d, --debug      (Default: false) Enable debug messages
@@ -24,6 +23,7 @@ The second mode of operation is to use a previously outputted JSON file as the i
 
 -f, --file       Required. JSON file
 -c, --command    Required. Command to run (e.g. ping, version, status, services)
+
 -a, --args       Arguments (for commands which require them)
 -d, --debug      (Default: false) Enable debug messages
 ```
@@ -34,7 +34,7 @@ The second mode of operation is to use a previously outputted JSON file as the i
 
 `./tnstool -o testing.json -h host_list.txt -c ping`
 
-2. Use previously output file to connect to live targets and enumerate version number (if allowed)
+2. Use previously output file to connect to live targets and enumerate version number if allowed
 
 `./tnstool json -i testing.json -c version`
 
@@ -50,7 +50,7 @@ testing.json at this stage would contain json formatted data of all the initial 
 {
   "Host": "10.14.100.17",
   "Port": 1521,
-  "Version": "8i",
+  "Version": "135294976",
   "Aliases": [
     "pharma"
   ],

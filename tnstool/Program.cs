@@ -12,7 +12,7 @@ namespace TnsTool {
         private static string cmdArgs = string.Empty;
         private static string jsonFile = string.Empty;
 
-        internal static void AddToList(string target, string version, string service) {
+        internal static void AddToList(string target, string service) {
             TnsService tnsService = new TnsService();
             if (target.Contains(':')) {
                 tnsService.Host = target[..target.IndexOf(':')];
@@ -21,7 +21,7 @@ namespace TnsTool {
                 tnsService.Host = target;
                 tnsService.Port = 1521;
             }
-            tnsService.Version = version;
+            tnsService.Version = "169869568"; // 10.2.0.1.0 ~10g, appears to be most compatible so use as default initial value
             tnsService.Aliases = new List<string> { service };
             tnsService.IsSecure = false;
             tnsService.IsDead = false;
@@ -36,10 +36,10 @@ namespace TnsTool {
                    .WithParsed<CmdOptions>(options => {
                        if (File.Exists(options.Target)) {
                            foreach (string line in File.ReadLines(options.Target)) {
-                               AddToList(line, options.Version, options.Service);                         
+                               AddToList(line, options.Service);                         
                            }
                        } else {
-                           AddToList(options.Target, options.Version, options.Service);                           
+                           AddToList(options.Target, options.Service);                           
                        }
                        debug = options.Debug;
                        cmd = options.Cmd;

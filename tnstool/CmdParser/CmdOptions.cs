@@ -6,9 +6,6 @@ namespace TnsTool.CmdParser {
         [Option(shortName: 'h', longName: "host", Required = true, HelpText = "Hostname/IP or file containing list of targets. Format <address>[:<port>]")]
         public string Target { get; set; } = string.Empty;
 
-        [Option(shortName: 'v', longName: "version", Default = "10g", Required = false, HelpText = "Version of Oracle db [8i, 9i, 10g, 11g, 12c, 18c, 19c, 21c]")]
-        public string Version { get; set; } = string.Empty;
-
         [Option(shortName: 's', longName: "service", Default = "LISTENER", Required = false, HelpText = "TNS service name")]
         public string Service { get; set; } = string.Empty;
 

@@ -41,17 +41,6 @@ namespace TnsTool {
             return "";
         }
 
-        internal void SetVersion(int version) {
-            this.Version = version switch {
-                310 => "8i",
-                312 => "9i",
-                313 => "10g",
-                314 => "11g",
-                318 => "19c",
-                _ => "10g", // default to 10g, most common publicly reachable version
-            };
-        }
-
         internal byte[] ReadResponse(NetworkStream ns, Logger logger) {
             if (ns.CanRead) {
                 TNS_HEADER header = ReadHeader(ns, logger, false);
@@ -60,7 +49,7 @@ namespace TnsTool {
 
                 if (header.PacketType == 2) { // ACCEPT connection packet
                     TNS_ACCEPT_PACKET acceptPacket = new TNS_ACCEPT_PACKET(content);
-                    SetVersion(acceptPacket.TNSVersion);
+                    this.Version = Regex.Match(acceptPacket.AcceptData, "VSNNUM=\\d{9}").ToString()[7..];
                     logger.LogDebug($"Connection accepted, server version: {acceptPacket.TNSVersion}");
                     logger.LogDebug($"Acceptance TNS string: {acceptPacket.AcceptData}");
 
@@ -68,6 +57,7 @@ namespace TnsTool {
 
                 } else if (header.PacketType == 4) { // REFUSE connection packet, also used when command is 'ping'
                     TNS_REFUSE_PACKET refusePacket = new TNS_REFUSE_PACKET(content);
+                    this.Version = Regex.Match(refusePacket.RefuseData, "VSNNUM=\\d{9}").ToString()[7..];
                     logger.LogDebug($"Connected refused, refusal code (user): {refusePacket.ReasonUser}. Refusal code (system): {refusePacket.ReasonSystem}");
                     logger.LogDebug($"Refusal TNS string: {refusePacket.RefuseData}");
 
@@ -94,8 +84,8 @@ namespace TnsTool {
         internal byte[] ReadDataPackets(NetworkStream ns, Logger logger) {
             if (ns.CanRead) {
                 try {
-                    // receiving data from 19c is fucked, connection hangs or closes before receiving all data packets. can force connection to stay open
-                    // by sending excess packets but its unreliable and ugly
+                    // receiving data from 19c (and maybe others) is fucked, connection hangs or closes before receiving all data packets. can force connection to stay open
+                    // by sending excess packets but its unreliable and ugly. 8i, 9i, 10g, 11g seem fine. Others untested.
                     //     while (!ns.DataAvailable) { Console.WriteLine("Data not yet available on NetworkStream, waiting.."); ns.WriteByte(0x00); };
                     //     Console.WriteLine("Can read");
                     TNS_HEADER header = ReadHeader(ns, logger, true);
@@ -139,7 +129,7 @@ namespace TnsTool {
                 } else {
                     logger.LogError($"ERROR {errorCode}: {TnsError.GetError(errorCode)}");
                 }
-            } else if (Regex.IsMatch(TnsString, "ALIAS=")) {
+            } else if (Regex.IsMatch(TnsString, "ALIAS=")) { // PING response
                 string aliasesString = Regex.Match(TnsString, "ALIAS=[0-z,]+").ToString();
                 this.Aliases.Clear();
                 foreach (string alias in aliasesString[6..].Split(',')) this.Aliases.Add(alias);
